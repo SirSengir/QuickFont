@@ -1,0 +1,8 @@
+C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\QuickFont.dll
+C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\QuickFont.pdb
+C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\OpenTK.dll
+C:\dev\Libraries\QuickFont\QuickFont\obj\Debug\QuickFont.csprojResolveAssemblyReference.cache
+C:\dev\Libraries\QuickFont\QuickFont\obj\Debug\QuickFont.dll
+C:\dev\Libraries\QuickFont\QuickFont\obj\Debug\QuickFont.pdb
+C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\OpenTK.dll.config
+C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\OpenTK.pdb
