@@ -4,11 +4,16 @@ using System.Text;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace QuickFont {
 	public class QBitmap {
 		public Bitmap bitmap;
 		public BitmapData bitmapData;
+
+		public QBitmap(Stream stream) {
+			LockBits(new Bitmap(stream));
+		}
 
 		public QBitmap (string filePath) {
 			LockBits (new Bitmap (filePath));

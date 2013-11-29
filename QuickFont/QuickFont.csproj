@@ -62,13 +62,14 @@
     <Compile Include="QFontRenderOptions.cs" />
     <Compile Include="TextNodeList.cs" />
     <Compile Include="TexturePage.cs" />
+    <Compile Include="FontResources.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ChangeLog.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\opentk\Source\OpenTK\OpenTK.csproj">
-      <Project>{a37a7e14-0000-0000-0000-000000000000}</Project>
+      <Project>{A37A7E14-0000-0000-0000-000000000000}</Project>
       <Name>OpenTK</Name>
     </ProjectReference>
   </ItemGroup>

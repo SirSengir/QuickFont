@@ -132,7 +132,7 @@ namespace QuickFont
                 if (monospaced)
                     return monospaceWidth;
 
-                return (float)Math.Ceiling(fontData.meanGlyphWidth * options.WordSpacing);
+                return (float)Math.Ceiling(fontData.MeanGlyphWidth * options.WordSpacing);
             }
 
 
@@ -148,7 +148,7 @@ namespace QuickFont
                         if (monospaced)
                             length += monospaceWidth;
                         else
-                            length += (float)Math.Ceiling(fontData.CharSetMapping[c].rect.Width + fontData.meanGlyphWidth * options.CharacterSpacing + fontData.GetKerningPairCorrection(i, node.Text, node));
+                            length += (float)Math.Ceiling(fontData.CharSetMapping[c].rect.Width + fontData.MeanGlyphWidth * options.CharacterSpacing + fontData.GetKerningPairCorrection(i, node.Text, node));
                     }
                 }
             }

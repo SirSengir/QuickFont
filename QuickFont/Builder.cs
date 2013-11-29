@@ -457,7 +457,6 @@ namespace QuickFont {
 				RetargetAllGlyphs (bitmapPages, glyphs, config.KerningConfig.alphaEmptyPixelTolerance);
 			}
 
-
 			//create list of texture pages
 			var pages = new List<TexturePage> ();
 			foreach (var page in bitmapPages)
@@ -469,7 +468,7 @@ namespace QuickFont {
 			fontData.CalculateMeanWidth ();
 			fontData.CalculateMaxHeight ();
 			fontData.KerningPairs = KerningCalculator.CalculateKerning (charSet.ToCharArray (), glyphs, bitmapPages, config.KerningConfig);
-			fontData.naturallyMonospaced = IsMonospaced (sizes);
+			fontData.NaturallyMonospaced = IsMonospaced (sizes);
 
 			if (saveName != null) {
 				if (bitmapPages.Count == 1)
@@ -482,7 +481,7 @@ namespace QuickFont {
 
 
 			if (config.ShadowConfig != null)
-				fontData.dropShadow = BuildDropShadow (bitmapPages, glyphs, config.ShadowConfig, charSet.ToCharArray (), config.KerningConfig.alphaEmptyPixelTolerance);
+				fontData.DropShadow = BuildDropShadow (bitmapPages, glyphs, config.ShadowConfig, charSet.ToCharArray (), config.KerningConfig.alphaEmptyPixelTolerance);
 
 
 
@@ -594,33 +593,45 @@ namespace QuickFont {
 			}
 		}
 
-		public static QFontData LoadQFontDataFromFile (string filePath, float downSampleFactor, QFontLoaderConfiguration loaderConfig) {
+		/// <summary>
+		/// Loads the QFontData from a qfont file.
+		/// </summary>
+		/// <returns>The Q font data from file.</returns>
+		/// <param name="filePath">File path.</param>
+		/// <param name="downSampleFactor">Down sample factor.</param>
+		/// <param name="loaderConfig">Loader config.</param>
+		public static QFontData LoadQFontDataFromFile (FontLoadDescription loadDescription, float downSampleFactor, QFontLoaderConfiguration loaderConfig) {
 			var lines = new List<String> ();
-			StreamReader reader = new StreamReader (filePath);
+			StreamReader reader = new StreamReader (loadDescription.Resources.GetResource());
 			string line;
 			while ((line = reader.ReadLine ()) != null)
 				lines.Add (line);
 			reader.Close ();
 
-			var data = new QFontData ();
-			int pageCount = 0;
-			char[] charSet;
-			data.Deserialize (lines, out pageCount, out charSet);
+			QFontData data = new QFontData ();
+			data.Deserialize (lines);
 
+			List<Stream> bitmapStreams = new List<Stream> ();
 
-			string namePrefix = filePath.Replace (".qfont", "").Replace (" ", "");
-            
-			var bitmapPages = new List<QBitmap> ();
-
-            
-
-			if (pageCount == 1) {
-				bitmapPages.Add (new QBitmap (namePrefix + ".png"));
+			if (data.PageCount == 1) {
+				bitmapStreams.Add (loadDescription.Resources.GetResource (".png"));
 			} else {
-				for (int i = 0; i < pageCount; i++)
-					bitmapPages.Add (new QBitmap (namePrefix + "_sheet_" + i));
+				for (int i = 0; i < data.PageCount; i++)
+					bitmapStreams.Add (loadDescription.Resources.GetResource ("_sheet_" + i));
 			}
 
+			QFontData processed = LoadQFontDataFromFile (data, bitmapStreams, downSampleFactor, loaderConfig);
+			foreach (Stream stream in bitmapStreams)
+				stream.Close ();
+
+			return processed;
+		}
+
+		public static QFontData LoadQFontDataFromFile (QFontData data, IList<Stream> bitmapStreams, float downSampleFactor, QFontLoaderConfiguration loaderConfig) {
+
+			List<QBitmap> bitmapPages = new List<QBitmap> ();
+			foreach(Stream stream in bitmapStreams)
+				bitmapPages.Add(new QBitmap(stream));
 
 			foreach (var glyph in data.CharSetMapping.Values)
 				RetargetGlyphRectangleOutwards (bitmapPages [glyph.page].bitmapData, glyph, false, loaderConfig.KerningConfig.alphaEmptyPixelTolerance);
@@ -668,7 +679,7 @@ namespace QuickFont {
 				int newHeight = (int)(bitmapPages [0].bitmap.Height * (0.1f + downSampleFactor));
 
 				//free old bitmap pages since we are about to chuck them away
-				for (int i = 0; i < pageCount; i++)
+				for (int i = 0; i < bitmapPages.Count; i++)
 					bitmapPages [i].Free ();
 
 				QFontGlyph[] shrunkRepackedGlyphs;
@@ -678,12 +689,10 @@ namespace QuickFont {
 				foreach (var bmp in shrunkBitmapsPerGlyph)
 					bmp.Free ();
 
-				pageCount = bitmapPages.Count;
 			}
 
-
-			data.Pages = new TexturePage[pageCount];
-			for (int i = 0; i < pageCount; i++)
+			data.Pages = new TexturePage[bitmapPages.Count];
+			for (int i = 0; i < bitmapPages.Count; i++)
 				data.Pages [i] = new TexturePage (bitmapPages [i].bitmapData);
 
 
@@ -698,28 +707,22 @@ namespace QuickFont {
 				}
 			}
 
-
-
 			var glyphList = new List<QFontGlyph> ();
 
-			foreach (var c in charSet)
+			foreach (var c in data.CharSet)
 				glyphList.Add (data.CharSetMapping [c]);
 
 			if (loaderConfig.ShadowConfig != null)
-				data.dropShadow = BuildDropShadow (bitmapPages, glyphList.ToArray (), loaderConfig.ShadowConfig, Helper.ToArray (charSet), loaderConfig.KerningConfig.alphaEmptyPixelTolerance);
+				data.DropShadow = BuildDropShadow (bitmapPages, glyphList.ToArray (), loaderConfig.ShadowConfig, Helper.ToArray (data.CharSet), loaderConfig.KerningConfig.alphaEmptyPixelTolerance);
 
 
-			data.KerningPairs = KerningCalculator.CalculateKerning (Helper.ToArray (charSet), glyphList.ToArray (), bitmapPages, loaderConfig.KerningConfig);
+			data.KerningPairs = KerningCalculator.CalculateKerning (Helper.ToArray (data.CharSet), glyphList.ToArray (), bitmapPages, loaderConfig.KerningConfig);
             
-
-
 			data.CalculateMeanWidth ();
 			data.CalculateMaxHeight ();
 
-
-			for (int i = 0; i < pageCount; i++)
+			for (int i = 0; i < bitmapPages.Count; i++)
 				bitmapPages [i].Free ();
-
 
 			return data;
 		}
