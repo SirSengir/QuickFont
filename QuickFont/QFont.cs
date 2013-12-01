@@ -313,8 +313,8 @@ namespace QuickFont {
 					fontData.DropShadow.Options = Options;
 
 				fontData.DropShadow.RenderGlyph (
-					x + (fontData.MeanGlyphWidth * Options.DropShadowOffset.X + nonShadowGlyph.rect.Width * 0.5f),
-					y + (fontData.MeanGlyphWidth * Options.DropShadowOffset.Y + nonShadowGlyph.rect.Height * 0.5f + nonShadowGlyph.yOffset), c, true);
+					x + (fontData.MeanGlyphWidth * Options.DropShadowOffset.X + nonShadowGlyph.Rect.Width * 0.5f),
+					y + (fontData.MeanGlyphWidth * Options.DropShadowOffset.Y + nonShadowGlyph.Rect.Height * 0.5f + nonShadowGlyph.YOffset), c, true);
 			}
 		}
 
@@ -333,8 +333,8 @@ namespace QuickFont {
 			//RenderGlyph for the shadow mean that we render the shadow centrally (despite it being a different size)
 			//under the glyph
 			if (isDropShadow) {
-				x -= (int)(glyph.rect.Width * 0.5f);
-				y -= (int)(glyph.rect.Height * 0.5f + glyph.yOffset);
+				x -= (int)(glyph.Rect.Width * 0.5f);
+				y -= (int)(glyph.Rect.Height * 0.5f + glyph.YOffset);
 			}
 
 			RenderDropShadow (x, y, c, glyph);
@@ -345,23 +345,23 @@ namespace QuickFont {
 				GL.Color4 (Options.Colour);
 			}
 
-			TexturePage sheet = fontData.Pages [glyph.page];
+			TexturePage sheet = fontData.Pages [glyph.Page];
 			GL.BindTexture (TextureTarget.Texture2D, sheet.GLTexID);
 
-			float tx1 = (float)(glyph.rect.X) / sheet.Width;
-			float ty1 = (float)(glyph.rect.Y) / sheet.Height;
-			float tx2 = (float)(glyph.rect.X + glyph.rect.Width) / sheet.Width;
-			float ty2 = (float)(glyph.rect.Y + glyph.rect.Height) / sheet.Height;
+			float tx1 = (float)(glyph.Rect.X) / sheet.Width;
+			float ty1 = (float)(glyph.Rect.Y) / sheet.Height;
+			float tx2 = (float)(glyph.Rect.X + glyph.Rect.Width) / sheet.Width;
+			float ty2 = (float)(glyph.Rect.Y + glyph.Rect.Height) / sheet.Height;
 
 			GL.Begin (BeginMode.Quads);
 			GL.TexCoord2 (tx1, ty1);
-			GL.Vertex2 (x, y + glyph.yOffset);
+			GL.Vertex2 (x, y + glyph.YOffset);
 			GL.TexCoord2 (tx1, ty2);
-			GL.Vertex2 (x, y + glyph.yOffset + glyph.rect.Height);
+			GL.Vertex2 (x, y + glyph.YOffset + glyph.Rect.Height);
 			GL.TexCoord2 (tx2, ty2);
-			GL.Vertex2 (x + glyph.rect.Width, y + glyph.yOffset + glyph.rect.Height);
+			GL.Vertex2 (x + glyph.Rect.Width, y + glyph.YOffset + glyph.Rect.Height);
 			GL.TexCoord2 (tx2, ty1);
-			GL.Vertex2 (x + glyph.rect.Width, y + glyph.yOffset);
+			GL.Vertex2 (x + glyph.Rect.Width, y + glyph.YOffset);
 			GL.End ();
 
             
@@ -389,7 +389,7 @@ namespace QuickFont {
                     //normal character
                     else if (fontData.CharSetMapping.ContainsKey (c)) {
 						QFontGlyph glyph = fontData.CharSetMapping [c];
-						xOffset += (float)Math.Ceiling (glyph.rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, text, null));
+						xOffset += (float)Math.Ceiling (glyph.Rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, text, null));
 					}
 				}
 			}
@@ -591,7 +591,7 @@ namespace QuickFont {
                         //normal character
                         else if (fontData.CharSetMapping.ContainsKey (c)) {
 							QFontGlyph glyph = fontData.CharSetMapping [c];
-							xOffset += (float)Math.Ceiling (glyph.rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, text, null));
+							xOffset += (float)Math.Ceiling (glyph.Rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, text, null));
 						}
 					}
 
@@ -644,7 +644,7 @@ namespace QuickFont {
 					if (IsMonospacingActive)
 						x += MonoSpaceWidth;
 					else
-						x += (int)Math.Ceiling (glyph.rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, node.Text, node));
+						x += (int)Math.Ceiling (glyph.Rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, node.Text, node));
 
 					x += pixelsPerGap;
 					if (leftOverPixels > 0) {
