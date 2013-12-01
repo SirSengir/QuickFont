@@ -108,12 +108,12 @@ namespace QuickFont {
 				var glyph = glyphChar.Value;
 
 				data.Add ("" + chr + " " +
-				glyph.page + " " +
-				glyph.rect.X + " " +
-				glyph.rect.Y + " " +
-				glyph.rect.Width + " " +
-				glyph.rect.Height + " " +
-				glyph.yOffset);
+				glyph.Page + " " +
+				glyph.Rect.X + " " +
+				glyph.Rect.Y + " " +
+				glyph.Rect.Width + " " +
+				glyph.Rect.Height + " " +
+				glyph.YOffset);
 			}
 			return data;
 		}
@@ -146,7 +146,7 @@ namespace QuickFont {
 		public void CalculateMeanWidth () {
 			MeanGlyphWidth = 0f;
 			foreach (var glyph in CharSetMapping)
-				MeanGlyphWidth += glyph.Value.rect.Width;
+				MeanGlyphWidth += glyph.Value.Rect.Width;
 
 			MeanGlyphWidth /= CharSetMapping.Count;
 
@@ -155,7 +155,7 @@ namespace QuickFont {
 		public void CalculateMaxHeight () {
 			MaxGlyphHeight = 0;
 			foreach (var glyph in CharSetMapping)
-				MaxGlyphHeight = Math.Max (glyph.Value.rect.Height, MaxGlyphHeight);
+				MaxGlyphHeight = Math.Max (glyph.Value.Rect.Height, MaxGlyphHeight);
 
 		}
 

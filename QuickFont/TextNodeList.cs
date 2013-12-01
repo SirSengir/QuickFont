@@ -148,7 +148,7 @@ namespace QuickFont
                         if (monospaced)
                             length += monospaceWidth;
                         else
-                            length += (float)Math.Ceiling(fontData.CharSetMapping[c].rect.Width + fontData.MeanGlyphWidth * options.CharacterSpacing + fontData.GetKerningPairCorrection(i, node.Text, node));
+                            length += (float)Math.Ceiling(fontData.CharSetMapping[c].Rect.Width + fontData.MeanGlyphWidth * options.CharacterSpacing + fontData.GetKerningPairCorrection(i, node.Text, node));
                     }
                 }
             }

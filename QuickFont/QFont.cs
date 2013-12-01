@@ -174,6 +174,32 @@ namespace QuickFont {
 				Options.TransformToViewport = transToVp;
 		}
 
+		public static QFont FromQFontFile (string filePath) {
+			return FromQFontFile (filePath, 1.0f, null);
+		}
+
+		public static QFont FromQFontFile (string filePath, QFontLoaderConfiguration loaderConfig) {
+			return FromQFontFile (filePath, 1.0f, loaderConfig);
+		}
+
+		public static QFont FromQFontFile (string filePath, float downSampleFactor) {
+			return FromQFontFile (filePath, downSampleFactor, null);
+		}
+
+		public static QFont FromQFontFile (string filePath, float downSampleFactor, QFontLoaderConfiguration loaderConfig) {
+			QFont qfont = new QFont ();
+			qfont.fontLoadDescription = new FontLoadDescription (new FontResourcesDefault(filePath), downSampleFactor, loaderConfig);
+			qfont.LoadQFontFromQFontFile (qfont.fontLoadDescription);
+			return qfont;
+		}
+
+		private static QFontData BuildFont (Font font, QFontBuilderConfiguration config, string saveName) {
+			Builder builder = new Builder (font, config);
+			return builder.BuildFontData (saveName);
+		}
+		#endregion
+
+		#region QFont File Creation
 		public static void CreateTextureFontFiles (Font font, string newFontName) {
 			CreateTextureFontFiles (font, null);
 		}
@@ -221,30 +247,6 @@ namespace QuickFont {
 
 			Builder.SaveQFontDataToFile (fontData, newFontName);
 
-		}
-
-		public static QFont FromQFontFile (string filePath) {
-			return FromQFontFile (filePath, 1.0f, null);
-		}
-
-		public static QFont FromQFontFile (string filePath, QFontLoaderConfiguration loaderConfig) {
-			return FromQFontFile (filePath, 1.0f, loaderConfig);
-		}
-
-		public static QFont FromQFontFile (string filePath, float downSampleFactor) {
-			return FromQFontFile (filePath, downSampleFactor, null);
-		}
-
-		public static QFont FromQFontFile (string filePath, float downSampleFactor, QFontLoaderConfiguration loaderConfig) {
-			QFont qfont = new QFont ();
-			qfont.fontLoadDescription = new FontLoadDescription (new FontResourcesDefault(filePath), downSampleFactor, loaderConfig);
-			qfont.LoadQFontFromQFontFile (qfont.fontLoadDescription);
-			return qfont;
-		}
-
-		private static QFontData BuildFont (Font font, QFontBuilderConfiguration config, string saveName) {
-			Builder builder = new Builder (font, config);
-			return builder.BuildFontData (saveName);
 		}
 		#endregion
 
@@ -316,10 +318,16 @@ namespace QuickFont {
 			}
 		}
 
+		/// <summary>
+		/// Renders a single glyph for the given char at the given screen coordinates.
+		/// </summary>
+		/// <param name="x">The x coordinate.</param>
+		/// <param name="y">The y coordinate.</param>
+		/// <param name="c">C.</param>
+		/// <param name="isDropShadow">Whether or not the glyph is a shadow. Will readjust position and colour.</param>
 		public void RenderGlyph (float x, float y, char c, bool isDropShadow) {
 
-
-			var glyph = fontData.CharSetMapping [c];
+			QFontGlyph glyph = fontData.CharSetMapping [c];
 
 			//note: it's not immediately obvious, but this combined with the paramteters to 
 			//RenderGlyph for the shadow mean that we render the shadow centrally (despite it being a different size)
@@ -329,9 +337,7 @@ namespace QuickFont {
 				y -= (int)(glyph.rect.Height * 0.5f + glyph.yOffset);
 			}
 
-
 			RenderDropShadow (x, y, c, glyph);
-
 
 			if (isDropShadow) {
 				GL.Color4 (1.0f, 1.0f, 1.0f, Options.DropShadowOpacity);
@@ -339,10 +345,8 @@ namespace QuickFont {
 				GL.Color4 (Options.Colour);
 			}
 
-
 			TexturePage sheet = fontData.Pages [glyph.page];
 			GL.BindTexture (TextureTarget.Texture2D, sheet.GLTexID);
-
 
 			float tx1 = (float)(glyph.rect.X) / sheet.Width;
 			float ty1 = (float)(glyph.rect.Y) / sheet.Height;
@@ -898,7 +902,6 @@ namespace QuickFont {
 
 			}
 
-
 		}
 
 		/// <summary>
@@ -1083,20 +1086,17 @@ namespace QuickFont {
 			return new SizeF (maxMeasuredWidth, yOffset + LineSpacing - yPos);
 
 		}
-		/*
-        public void Begin()
-        {
-            ProjectionStack.Begin();
-        }
 
-        public void End()
-        {
-            ProjectionStack.End();
-        }*/
+		/// <summary>
+		/// Begins rendering of this font.
+		/// </summary>
 		public static void Begin () {
 			ProjectionStack.Begin ();
 		}
 
+		/// <summary>
+		/// Ends rendering of this font.
+		/// </summary>
 		public static void End () {
 			ProjectionStack.End ();
 		}

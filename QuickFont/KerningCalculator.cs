@@ -11,13 +11,13 @@ namespace QuickFont {
 		}
 
 		private static int Kerning (QFontGlyph g1, QFontGlyph g2, XLimits[] lim1, XLimits[] lim2, QFontKerningConfiguration config) {
-			int yOffset1 = g1.yOffset;
-			int yOffset2 = g2.yOffset;
+			int yOffset1 = g1.YOffset;
+			int yOffset2 = g2.YOffset;
 
 			int startY = Math.Max (yOffset1, yOffset2);
-			int endY = Math.Min (g1.rect.Height + yOffset1, g2.rect.Height + yOffset2);
+			int endY = Math.Min (g1.Rect.Height + yOffset1, g2.Rect.Height + yOffset2);
 
-			int w1 = g1.rect.Width;
+			int w1 = g1.Rect.Width;
 
 			int worstCase = w1;
 
@@ -27,16 +27,16 @@ namespace QuickFont {
 				worstCase = Math.Min (worstCase, w1 - lim1 [j - yOffset1].Max + lim2 [j - yOffset2].Min);
 
 
-			worstCase = Math.Min (worstCase, g1.rect.Width);
-			worstCase = Math.Min (worstCase, g2.rect.Width);
+			worstCase = Math.Min (worstCase, g1.Rect.Width);
+			worstCase = Math.Min (worstCase, g2.Rect.Width);
 
 
 			//modify by character kerning rules
-			CharacterKerningRule kerningRule = config.GetOverridingCharacterKerningRuleForPair ("" + g1.character + g2.character);
+			CharacterKerningRule kerningRule = config.GetOverridingCharacterKerningRuleForPair ("" + g1.Character + g2.Character);
 			if (kerningRule == CharacterKerningRule.Zero) {
 				return 0;
 			} else if (kerningRule == CharacterKerningRule.NotMoreThanHalf) {
-				return (int)Math.Min (Math.Min (g1.rect.Width, g2.rect.Width) * 0.5f, worstCase);
+				return (int)Math.Min (Math.Min (g1.Rect.Width, g2.Rect.Width) * 0.5f, worstCase);
 			}
 
 
@@ -50,8 +50,8 @@ namespace QuickFont {
 			XLimits[][] limits = new XLimits[charSet.Length][];
 			int maxHeight = 0;
 			for (int n = 0; n < charSet.Length; n++) {
-				var rect = glyphs [n].rect;
-				var page = bitmapPages [glyphs [n].page];
+				var rect = glyphs [n].Rect;
+				var page = bitmapPages [glyphs [n].Page];
 
 				// Marshal the bitmap data
 				int size = page.bitmapData.Height * page.bitmapData.Stride;
