@@ -63,6 +63,9 @@
     <Compile Include="TextNodeList.cs" />
     <Compile Include="TexturePage.cs" />
     <Compile Include="FontResources.cs" />
+    <Compile Include="GLWrangler.cs" />
+    <Compile Include="Util\PlatformOS.cs" />
+    <Compile Include="Util\PlatformUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ChangeLog.txt" />
@@ -81,4 +84,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Util\" />
+  </ItemGroup>
 </Project>

@@ -5,6 +5,8 @@ using System.Drawing;
 
 namespace QuickFont {
 	public class QFontData : IDisposable {
+
+		#region Properties
 		/// <summary>
 		/// Number of pages contained in the font.
 		/// </summary>
@@ -74,11 +76,21 @@ namespace QuickFont {
 		/// current viewport for consistent pixel-perfect size across
 		/// any resolution
 		/// </summary>
-		private float scaleDueToTransformToViewport = 1.0f;
+		private float _scaleDueToTransformToViewport = 1.0f;
 		public float ScaleDueToTransformToViewport {
-			get { return scaleDueToTransformToViewport; }
-			set { scaleDueToTransformToViewport = value; }
+			get { return _scaleDueToTransformToViewport; }
+			set { _scaleDueToTransformToViewport = value; }
 		}
+
+		/// <summary>
+		/// Gets or sets the GL id for the font's vertex array.
+		/// </summary>
+		/// <value>The vba identifier.</value>
+		public int VbaId {
+			get;
+			set;
+		}
+		#endregion
 
 		public bool IsMonospacingActive (QFontRenderOptions options) {
 			return (options.Monospacing == QFontMonospacing.Natural && NaturallyMonospaced) || options.Monospacing == QFontMonospacing.Yes; 
@@ -197,8 +209,10 @@ namespace QuickFont {
 		}
 
 		public virtual void Dispose () {
-			foreach (var page in Pages)
+			foreach (TexturePage page in Pages)
 				page.Dispose ();
+			if (VbaId > 0)
+				GLWrangler.DeleteVertexArray (VbaId);
 		}
 	}
 }

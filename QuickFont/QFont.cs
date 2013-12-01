@@ -103,9 +103,9 @@ namespace QuickFont {
 		}
 
 		private void LoadQFontFromFontFile (FontLoadDescription loadDescription) {
-			var config = loadDescription.BuilderConfig;
-			var size = loadDescription.Size;
-			var style = loadDescription.Style;
+			QFontBuilderConfiguration config = loadDescription.BuilderConfig;
+			float size = loadDescription.Size;
+			FontStyle style = loadDescription.Style;
 
 			if (config == null)
 				config = new QFontBuilderConfiguration ();
@@ -138,7 +138,7 @@ namespace QuickFont {
 				throw new ArgumentException ("Chosen font file does not support style: " + style);
 
 
-			var font = new Font (fontFamily, size * fontScale * config.SuperSampleLevels, style);
+			Font font = new Font (fontFamily, size * fontScale * config.SuperSampleLevels, style);
 			//var font = ObtainFont(fileName, size * fontScale * config.SuperSampleLevels, style)
 			fontData = BuildFont (font, config, null);
 			fontData.ScaleDueToTransformToViewport = fontScale;
@@ -153,8 +153,8 @@ namespace QuickFont {
 		}
 
 		private void LoadQFontFromQFontFile (FontLoadDescription loadDescription) {
-			var loaderConfig = loadDescription.LoaderConfig;
-			var downSampleFactor = loadDescription.DownSampleFactor;
+			QFontLoaderConfiguration loaderConfig = loadDescription.LoaderConfig;
+			float downSampleFactor = loadDescription.DownSampleFactor;
 
 
 			if (loaderConfig == null)
@@ -348,22 +348,14 @@ namespace QuickFont {
 			TexturePage sheet = fontData.Pages [glyph.Page];
 			GL.BindTexture (TextureTarget.Texture2D, sheet.GLTexID);
 
-			float tx1 = (float)(glyph.Rect.X) / sheet.Width;
-			float ty1 = (float)(glyph.Rect.Y) / sheet.Height;
-			float tx2 = (float)(glyph.Rect.X + glyph.Rect.Width) / sheet.Width;
-			float ty2 = (float)(glyph.Rect.Y + glyph.Rect.Height) / sheet.Height;
+			if (fontData.VbaId <= 0)
+				throw new SystemException ("Cannot render a font without GL data! Is some initialization missing?");
 
-			GL.Begin (BeginMode.Quads);
-			GL.TexCoord2 (tx1, ty1);
-			GL.Vertex2 (x, y + glyph.YOffset);
-			GL.TexCoord2 (tx1, ty2);
-			GL.Vertex2 (x, y + glyph.YOffset + glyph.Rect.Height);
-			GL.TexCoord2 (tx2, ty2);
-			GL.Vertex2 (x + glyph.Rect.Width, y + glyph.YOffset + glyph.Rect.Height);
-			GL.TexCoord2 (tx2, ty1);
-			GL.Vertex2 (x + glyph.Rect.Width, y + glyph.YOffset);
-			GL.End ();
-
+			GL.Translate (x, y, 0);
+			GLWrangler.BindVertexArray(fontData.VbaId);
+			GL.DrawArrays (PrimitiveType.Quads, glyph.GLIndex * 4, 4);
+			GLWrangler.BindVertexArray(0);
+			GL.Translate (-x, -y, 0);
             
 		}
 
@@ -377,7 +369,6 @@ namespace QuickFont {
 				if (c == '\r' || c == '\n') {
 					break;
 				}
-
 
 				if (IsMonospacingActive) {
 					xOffset += MonoSpaceWidth;

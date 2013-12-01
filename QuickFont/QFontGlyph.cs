@@ -17,14 +17,14 @@ namespace QuickFont {
 		/// </summary>
 		public Rectangle Rect {
 			get;
-			private set;
+			set;
 		}
 		/// <summary>
 		/// How far the glyph would need to be vertically offset to be vertically in line with the tallest glyph in the set of all glyphs
 		/// </summary>
 		public int YOffset {
 			get;
-			private set;
+			set;
 		}
 		/// <summary>
 		/// Which character this glyph represents
@@ -32,6 +32,14 @@ namespace QuickFont {
 		public char Character {
 			get;
 			private set;
+		}
+		/// <summary>
+		/// Index of the element in the GL Buffer.
+		/// </summary>
+		/// <value>The index of the element.</value>
+		public int GLIndex {
+			get;
+			set;
 		}
 
 		public QFontGlyph (int page, Rectangle rect, int yOffset, char character) {
