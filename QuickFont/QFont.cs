@@ -201,7 +201,7 @@ namespace QuickFont {
 
 		#region QFont File Creation
 		public static void CreateTextureFontFiles (Font font, string newFontName) {
-			CreateTextureFontFiles (font, null);
+            CreateTextureFontFiles(font, newFontName, new QFontBuilderConfiguration());
 		}
 
 		public static void CreateTextureFontFiles (Font font, string newFontName, QFontBuilderConfiguration config) {

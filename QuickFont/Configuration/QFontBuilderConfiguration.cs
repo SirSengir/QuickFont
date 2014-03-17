@@ -56,7 +56,7 @@ namespace QuickFont {
 		/// <summary>
 		/// Set of characters to support
 		/// </summary>
-		public string charSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.:,;'\"(!?)+-*/=_{}[]@~#\\<>|^%$£&";
+		public string CharSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.:,;'\"(!?)+-*/=_{}[]@~#\\<>|^%$£&";
 		/// <summary>
 		/// Which render hint to use when rendering the ttf character set to create the QFont texture
 		/// </summary>
@@ -71,8 +71,8 @@ namespace QuickFont {
 
 		public QFontBuilderConfiguration (bool addDropShadow, bool TransformToOrthogProjection) {
 			if (addDropShadow)
-				this.ShadowConfig = new QFontShadowConfiguration ();
-			this.TransformToCurrentOrthogProjection = TransformToOrthogProjection;
+				ShadowConfig = new QFontShadowConfiguration ();
+			TransformToCurrentOrthogProjection = TransformToOrthogProjection;
 		}
 	}
 }

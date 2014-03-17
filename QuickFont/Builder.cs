@@ -19,7 +19,7 @@ namespace QuickFont {
 		private Font font;
 
 		public Builder (Font font, QFontBuilderConfiguration config) {
-			this.charSet = config.charSet;
+			this.charSet = config.CharSet;
 			this.config = config;
 			this.font = font;
             

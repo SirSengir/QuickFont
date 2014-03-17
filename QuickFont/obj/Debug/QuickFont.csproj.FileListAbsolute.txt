@@ -6,3 +6,4 @@ C:\dev\Libraries\QuickFont\QuickFont\obj\Debug\QuickFont.dll
 C:\dev\Libraries\QuickFont\QuickFont\obj\Debug\QuickFont.pdb
 C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\OpenTK.dll.config
 C:\dev\Libraries\QuickFont\QuickFont\bin\Debug\OpenTK.pdb
+C:\Dev\Libraries\QuickFont\QuickFont\bin\Debug\OpenTK.xml
