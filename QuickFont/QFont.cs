@@ -346,20 +346,49 @@ namespace QuickFont {
 			}
 
 			TexturePage sheet = fontData.Pages [glyph.Page];
-			GL.BindTexture (TextureTarget.Texture2D, sheet.GLTexID);
+			//GL.BindTexture (TextureTarget.Texture2D, sheet.GLTexID);
+            ApplyTexture(sheet.GLTexID);
 
 			if (fontData.VbaId <= 0)
 				throw new SystemException ("Cannot render a font without GL data! Is some initialization missing?");
 
 			GL.Translate (x, y, 0);
-			GLWrangler.BindVertexArray(fontData.VbaId);
+			//GLWrangler.BindVertexArray(fontData.VbaId);
+            EnsureVba(fontData.VbaId);
 			GL.DrawArrays (PrimitiveType.Quads, glyph.GLIndex * 4, 4);
-			GLWrangler.BindVertexArray(0);
+			//GLWrangler.BindVertexArray(0);
 			GL.Translate (-x, -y, 0);
             
 		}
 
-		private float MeasureNextlineLength (string text) {
+        #region TextureIdManagment
+        static int _currentTextureId = -1;
+        static int _currentVbaId = -1;
+
+        private void ApplyTexture(int texId) {
+            if (texId == _currentTextureId)
+                return;
+
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+            _currentTextureId = texId;
+        }
+
+        private void EnsureVba(int vbaId) {
+            if (vbaId == _currentVbaId)
+                return;
+
+            GLWrangler.BindVertexArray(vbaId);
+            _currentVbaId = vbaId;
+        }
+
+        private void EndRendering() {
+            _currentTextureId = -1;
+            _currentVbaId = -1;
+            GLWrangler.BindVertexArray(0);
+        }
+        #endregion
+
+        private float MeasureNextlineLength (string text) {
 
 			float xOffset = 0;
             
@@ -601,8 +630,8 @@ namespace QuickFont {
 				GL.PopMatrix ();
 
 
+            EndRendering();
 			return new SizeF (maxWidth, yOffset + LineSpacing);
-
 
 		}
 
@@ -1073,7 +1102,7 @@ namespace QuickFont {
 			if (popRequired)
 				GL.PopMatrix ();
 
-
+            EndRendering(); // Resets current texture id.
 			return new SizeF (maxMeasuredWidth, yOffset + LineSpacing - yPos);
 
 		}
