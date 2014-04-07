@@ -468,6 +468,7 @@ namespace QuickFont {
 			if (intercept != null)
 				throw new Exception ("Failed to create glyph set. Glyphs '" + intercept [0] + "' and '" + intercept [1] + "' were overlapping. This is could be due to an error in the font, or a bug in Graphics.MeasureString().");
 
+            SetGLData(fontData);
 			return fontData;
 
 		}
@@ -502,6 +503,7 @@ namespace QuickFont {
 				newTextureSheets.Add (new TexturePage (page.bitmapData));
 
 			QFontData fontData = new QFontData ();
+            //fontData.CharSet = charSet;
 			fontData.CharSetMapping = new Dictionary<char, QFontGlyph> ();
 			for (int i = 0; i < charSet.Length; i++)
 				fontData.CharSetMapping.Add (charSet [i], newGlyphs [i]);
@@ -512,7 +514,8 @@ namespace QuickFont {
 
 			foreach (QBitmap sheet in bitmapSheets)
 				sheet.Free ();
-			            
+
+            SetGLData(fontData);
 			return new QFont (fontData);
 		}
 
@@ -690,13 +693,15 @@ namespace QuickFont {
 		private static void SetGLData(QFontData data) {
 
 			// Create array of floats representing vertices and UV coords.
-			float[] dataVertex = new float[FLOATS_PER_GLYPH*data.CharSet.Length];
-			float[] dataTexture = new float[FLOATS_PER_GLYPH*data.CharSet.Length];
-			for(int i = 0; i < data.CharSet.Length; i++) {
-				QFontGlyph glyph = data.CharSetMapping [data.CharSet [i]];
-				glyph.GLIndex = i;
-				SetGLVertexData (data, glyph, dataVertex);
-				SetGLTextureData (data, glyph, dataTexture);
+			float[] dataVertex = new float[FLOATS_PER_GLYPH*data.CharSetMapping.Count];
+			float[] dataTexture = new float[FLOATS_PER_GLYPH*data.CharSetMapping.Count];
+
+            int index = 0;
+			foreach(KeyValuePair<char, QFontGlyph> glyph in data.CharSetMapping) {
+				glyph.Value.GLIndex = index;
+				SetGLVertexData (data, glyph.Value, dataVertex);
+				SetGLTextureData (data, glyph.Value, dataTexture);
+                index++;
 			}
 
 			data.VbaId = GLWrangler.GenVertexArray ();
