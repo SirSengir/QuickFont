@@ -66,12 +66,6 @@
   <ItemGroup>
     <Content Include="ChangeLog.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\opentk\Source\OpenTK\OpenTK.csproj">
-      <Project>{A37A7E14-0000-0000-0000-000000000000}</Project>
-      <Name>OpenTK</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -81,4 +75,10 @@
   </Target>
   -->
   <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\opentk\Source\OpenTK\OpenTK.csproj">
+      <Project>{A37A7E14-0000-0000-0000-000000000000}</Project>
+      <Name>OpenTK</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
