@@ -14,7 +14,10 @@ namespace QuickFont {
 	public class QFont : IDisposable {
 
 		private Stack<QFontRenderOptions> optionsStack = new Stack<QFontRenderOptions> ();
-		internal QFontData fontData;
+        public QFontData FontData {
+            get;
+            private set;
+        }
 		private FontLoadDescription fontLoadDescription;
 
 		public QFontRenderOptions Options {
@@ -26,7 +29,7 @@ namespace QuickFont {
 
 				return optionsStack.Peek (); 
 			}
-			private set { //not sure if we should even allow this...
+			set { //not sure if we should even allow this...
 				optionsStack.Pop ();
 				optionsStack.Push (value);
 			}
@@ -36,7 +39,7 @@ namespace QuickFont {
 		private QFont() {}
 
 		internal QFont (QFontData fontData) {
-			this.fontData = fontData;
+			this.FontData = fontData;
 		}
 
 		public QFont(FontLoadDescription loadDescription) {
@@ -56,7 +59,7 @@ namespace QuickFont {
 			if (config == null)
 				config = new QFontBuilderConfiguration ();
 
-			fontData = BuildFont (font, config, null);
+			FontData = BuildFont (font, config, null);
 
 			if (config.ShadowConfig != null)
 				Options.DropShadowActive = true;
@@ -88,14 +91,14 @@ namespace QuickFont {
 			switch (fontLoadDescription.Method) {
 			case FontLoadMethod.QFontFile:
 				{
-					fontData.Dispose (); //dispose old data
+					FontData.Dispose (); //dispose old data
 					LoadQFontFromQFontFile (fontLoadDescription);
 					break;
 				}
 
 			case FontLoadMethod.FontFile:
 				{
-					fontData.Dispose (); //dispose old data
+					FontData.Dispose (); //dispose old data
 					LoadQFontFromFontFile (fontLoadDescription);
 					break;
 				}
@@ -140,8 +143,8 @@ namespace QuickFont {
 
 			Font font = new Font (fontFamily, size * fontScale * config.SuperSampleLevels, style);
 			//var font = ObtainFont(fileName, size * fontScale * config.SuperSampleLevels, style)
-			fontData = BuildFont (font, config, null);
-			fontData.ScaleDueToTransformToViewport = fontScale;
+			FontData = BuildFont (font, config, null);
+			FontData.ScaleDueToTransformToViewport = fontScale;
 			font.Dispose ();
 
 
@@ -165,8 +168,8 @@ namespace QuickFont {
 			if (loaderConfig.TransformToCurrentOrthogProjection)
 				transToVp = OrthogonalTransform (out fontScale);
 
-			fontData = Builder.LoadQFontDataFromFile (loadDescription, downSampleFactor * fontScale, loaderConfig);
-			fontData.ScaleDueToTransformToViewport = fontScale;
+			FontData = Builder.LoadQFontDataFromFile (loadDescription, downSampleFactor * fontScale, loaderConfig);
+			FontData.ScaleDueToTransformToViewport = fontScale;
 
 			if (loaderConfig.ShadowConfig != null)
 				Options.DropShadowActive = true;
@@ -294,27 +297,27 @@ namespace QuickFont {
 		}
 
 		public float LineSpacing {
-			get { return (float)Math.Ceiling (fontData.MaxGlyphHeight * Options.LineSpacing); }
+			get { return (float)Math.Ceiling (FontData.MaxGlyphHeight * Options.LineSpacing); }
 		}
 
 		public bool IsMonospacingActive {
-			get { return fontData.IsMonospacingActive (Options); }
+			get { return FontData.IsMonospacingActive (Options); }
 		}
 
 		public float MonoSpaceWidth {
-			get { return fontData.GetMonoSpaceWidth (Options); }
+			get { return FontData.GetMonoSpaceWidth (Options); }
 		}
 
 		private void RenderDropShadow (float x, float y, char c, QFontGlyph nonShadowGlyph) {
 			//note can cast drop shadow offset to int, but then you can't move the shadow smoothly...
-			if (fontData.DropShadow != null && Options.DropShadowActive) {
+			if (FontData.DropShadow != null && Options.DropShadowActive) {
 				//make sure fontdata font's options are synced with the actual options
-				if (fontData.DropShadow.Options != Options)
-					fontData.DropShadow.Options = Options;
+				if (FontData.DropShadow.Options != Options)
+					FontData.DropShadow.Options = Options;
 
-				fontData.DropShadow.RenderGlyph (
-					x + (fontData.MeanGlyphWidth * Options.DropShadowOffset.X + nonShadowGlyph.Rect.Width * 0.5f),
-					y + (fontData.MeanGlyphWidth * Options.DropShadowOffset.Y + nonShadowGlyph.Rect.Height * 0.5f + nonShadowGlyph.YOffset), c, true);
+				FontData.DropShadow.RenderGlyph (
+					x + (FontData.MeanGlyphWidth * Options.DropShadowOffset.X + nonShadowGlyph.Rect.Width * 0.5f),
+					y + (FontData.MeanGlyphWidth * Options.DropShadowOffset.Y + nonShadowGlyph.Rect.Height * 0.5f + nonShadowGlyph.YOffset), c, true);
 			}
 		}
 
@@ -327,7 +330,7 @@ namespace QuickFont {
 		/// <param name="isDropShadow">Whether or not the glyph is a shadow. Will readjust position and colour.</param>
 		public void RenderGlyph (float x, float y, char c, bool isDropShadow) {
 
-			QFontGlyph glyph = fontData.CharSetMapping [c];
+			QFontGlyph glyph = FontData.CharSetMapping [c];
 
 			//note: it's not immediately obvious, but this combined with the paramteters to 
 			//RenderGlyph for the shadow mean that we render the shadow centrally (despite it being a different size)
@@ -345,16 +348,16 @@ namespace QuickFont {
 				GL.Color4 (Options.Colour);
 			}
 
-			TexturePage sheet = fontData.Pages [glyph.Page];
+			TexturePage sheet = FontData.Pages [glyph.Page];
 			//GL.BindTexture (TextureTarget.Texture2D, sheet.GLTexID);
             ApplyTexture(sheet.GLTexID);
 
-			if (fontData.VbaId <= 0)
+			if (FontData.VbaId <= 0)
 				throw new SystemException ("Cannot render a font without GL data! Is some initialization missing?");
 
 			GL.Translate (x, y, 0);
 			//GLWrangler.BindVertexArray(fontData.VbaId);
-            EnsureVba(fontData.VbaId);
+            EnsureVba(FontData.VbaId);
 			GL.DrawArrays (PrimitiveType.Quads, glyph.GLIndex * 4, 4);
 			//GLWrangler.BindVertexArray(0);
 			GL.Translate (-x, -y, 0);
@@ -404,12 +407,12 @@ namespace QuickFont {
 				} else {
 					//space
 					if (c == ' ') {
-						xOffset += (float)Math.Ceiling (fontData.MeanGlyphWidth * Options.WordSpacing);
+						xOffset += (float)Math.Ceiling (FontData.MeanGlyphWidth * Options.WordSpacing);
 					}
                     //normal character
-                    else if (fontData.CharSetMapping.ContainsKey (c)) {
-						QFontGlyph glyph = fontData.CharSetMapping [c];
-						xOffset += (float)Math.Ceiling (glyph.Rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, text, null));
+                    else if (FontData.CharSetMapping.ContainsKey (c)) {
+						QFontGlyph glyph = FontData.CharSetMapping [c];
+						xOffset += (float)Math.Ceiling (glyph.Rect.Width + FontData.MeanGlyphWidth * Options.CharacterSpacing + FontData.GetKerningPairCorrection (i, text, null));
 					}
 				}
 			}
@@ -549,7 +552,7 @@ namespace QuickFont {
 			if (!measureOnly && !ProjectionStack.Begun && Options.TransformToViewport != null) {
 				GL.PushMatrix ();
 				popRequired = true;
-				GL.Scale (1 / fontData.ScaleDueToTransformToViewport, 1 / fontData.ScaleDueToTransformToViewport, 0);
+				GL.Scale (1 / FontData.ScaleDueToTransformToViewport, 1 / FontData.ScaleDueToTransformToViewport, 0);
 			}
 
 
@@ -596,8 +599,8 @@ namespace QuickFont {
 					minXPos = Math.Min (xOffset, minXPos);
 
 					//normal character
-					if (c != ' ' && fontData.CharSetMapping.ContainsKey (c)) {
-						QFontGlyph glyph = fontData.CharSetMapping [c];
+					if (c != ' ' && FontData.CharSetMapping.ContainsKey (c)) {
+						QFontGlyph glyph = FontData.CharSetMapping [c];
 						if (!measureOnly)
 							RenderGlyph (xOffset, yOffset, c, false);
 					}
@@ -607,11 +610,11 @@ namespace QuickFont {
 						xOffset += MonoSpaceWidth;
 					else {
 						if (c == ' ')
-							xOffset += (float)Math.Ceiling (fontData.MeanGlyphWidth * Options.WordSpacing);
+							xOffset += (float)Math.Ceiling (FontData.MeanGlyphWidth * Options.WordSpacing);
                         //normal character
-                        else if (fontData.CharSetMapping.ContainsKey (c)) {
-							QFontGlyph glyph = fontData.CharSetMapping [c];
-							xOffset += (float)Math.Ceiling (glyph.Rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, text, null));
+                        else if (FontData.CharSetMapping.ContainsKey (c)) {
+							QFontGlyph glyph = FontData.CharSetMapping [c];
+							xOffset += (float)Math.Ceiling (glyph.Rect.Width + FontData.MeanGlyphWidth * Options.CharacterSpacing + FontData.GetKerningPairCorrection (i, text, null));
 						}
 					}
 
@@ -655,8 +658,8 @@ namespace QuickFont {
 
 			for (int i = 0; i < node.Text.Length; i++) {
 				char c = node.Text [i];
-				if (fontData.CharSetMapping.ContainsKey (c)) {
-					var glyph = fontData.CharSetMapping [c];
+				if (FontData.CharSetMapping.ContainsKey (c)) {
+					var glyph = FontData.CharSetMapping [c];
 
 					RenderGlyph (x, y, c, false);
 
@@ -664,7 +667,7 @@ namespace QuickFont {
 					if (IsMonospacingActive)
 						x += MonoSpaceWidth;
 					else
-						x += (int)Math.Ceiling (glyph.Rect.Width + fontData.MeanGlyphWidth * Options.CharacterSpacing + fontData.GetKerningPairCorrection (i, node.Text, node));
+						x += (int)Math.Ceiling (glyph.Rect.Width + FontData.MeanGlyphWidth * Options.CharacterSpacing + FontData.GetKerningPairCorrection (i, node.Text, node));
 
 					x += pixelsPerGap;
 					if (leftOverPixels > 0) {
@@ -968,7 +971,7 @@ namespace QuickFont {
 			maxWidth = TransformWidthToViewport (maxWidth);
 
 			var nodeList = new TextNodeList (text);
-			nodeList.MeasureNodes (fontData, Options);
+			nodeList.MeasureNodes (FontData, Options);
 
 			//we "crumble" words that are two long so that that can be split up
 			var nodesToCrumble = new List<TextNode> ();
@@ -980,7 +983,7 @@ namespace QuickFont {
 				nodeList.Crumble (node, 1);
 
 			//need to measure crumbled words
-			nodeList.MeasureNodes (fontData, Options);
+			nodeList.MeasureNodes (FontData, Options);
 
 
 			var processedText = new ProcessedText ();
@@ -1006,7 +1009,7 @@ namespace QuickFont {
 			if (!measureOnly && !ProjectionStack.Begun && Options.TransformToViewport != null) {
 				GL.PushMatrix ();
 				popRequired = true;
-				GL.Scale (1 / fontData.ScaleDueToTransformToViewport, 1 / fontData.ScaleDueToTransformToViewport, 0);
+				GL.Scale (1 / FontData.ScaleDueToTransformToViewport, 1 / FontData.ScaleDueToTransformToViewport, 0);
 			}
 
 			float maxMeasuredWidth = 0f;
@@ -1160,7 +1163,7 @@ namespace QuickFont {
 		/// Dispose of the QFont data.
 		/// </summary>
 		public virtual void Dispose () {
-			fontData.Dispose ();
+			FontData.Dispose ();
 		}
 	}
 }

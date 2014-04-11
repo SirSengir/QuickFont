@@ -180,7 +180,7 @@ namespace QuickFont {
 		/// <param name="text"></param>
 		/// <param name="textNode"></param>
 		/// <returns></returns>
-		internal int GetKerningPairCorrection (int index, string text, TextNode textNode) {
+		public int GetKerningPairCorrection (int index, string text, TextNode textNode) {
 			if (KerningPairs == null)
 				return 0;
 
