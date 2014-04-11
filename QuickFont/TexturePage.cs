@@ -10,7 +10,7 @@ using OpenTK;
 
 namespace QuickFont
 {
-    internal class TexturePage : IDisposable
+    public class TexturePage : IDisposable
     {
         int gLTexID;
         int width;
