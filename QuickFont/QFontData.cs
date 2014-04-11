@@ -32,7 +32,7 @@ namespace QuickFont {
 		/// <summary>
 		/// List of texture pages
 		/// </summary>
-		internal TexturePage[] Pages {
+		public TexturePage[] Pages {
 			get;
 			set;
 		}
