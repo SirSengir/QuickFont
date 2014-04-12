@@ -44,9 +44,7 @@
     <Compile Include="Configuration\QFontKerningConfiguration.cs" />
     <Compile Include="Configuration\QFontLoaderConfiguration.cs" />
     <Compile Include="FontLoadDescription.cs" />
-    <Compile Include="Helper.cs" />
     <Compile Include="KerningCalculator.cs" />
-    <Compile Include="ProjectionStack.cs" />
     <Compile Include="QBitmap.cs" />
     <Compile Include="QFont.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,15 +54,10 @@
     <Compile Include="Configuration\QFontShadowConfiguration.cs" />
     <Compile Include="QFontGlyph.cs" />
     <Compile Include="QFontRenderOptions.cs" />
-    <Compile Include="TextNodeList.cs" />
     <Compile Include="TexturePage.cs" />
     <Compile Include="FontResources.cs" />
-    <Compile Include="GLWrangler.cs" />
     <Compile Include="Util\PlatformOS.cs" />
     <Compile Include="Util\PlatformUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="ChangeLog.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
