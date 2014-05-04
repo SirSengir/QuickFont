@@ -12,24 +12,24 @@ namespace QuickFont {
         public Bitmap bitmap;
         public BitmapData bitmapData;
 
-        public QBitmap (Stream stream) {
-            LockBits (new Bitmap (stream));
+        public QBitmap(Stream stream) {
+            LockBits(new Bitmap(stream));
         }
 
-        public QBitmap (string filePath) {
-            LockBits (new Bitmap (filePath));
+        public QBitmap(string filePath) {
+            LockBits(new Bitmap(filePath));
         }
 
-        public QBitmap (Bitmap bitmap) {
-            LockBits (bitmap);
+        public QBitmap(Bitmap bitmap) {
+            LockBits(bitmap);
         }
 
-        private void LockBits (Bitmap bitmap) {
+        private void LockBits(Bitmap bitmap) {
             this.bitmap = bitmap;
-            bitmapData = bitmap.LockBits (new Rectangle (0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
         }
 
-        public void Clear32 (byte r, byte g, byte b, byte a) {
+        public void Clear32(byte r, byte g, byte b, byte a) {
             unsafe {
                 byte* sourcePtr = (byte*)(bitmapData.Scan0);
 
@@ -50,28 +50,28 @@ namespace QuickFont {
         /// <summary>
         /// Returns true if the given pixel is empty (i.e. black)
         /// </summary>
-        public static unsafe bool EmptyPixel (byte[] marshalledData, int stride, int px, int py) {
+        public static unsafe bool EmptyPixel(byte[] marshalledData, int stride, int px, int py) {
             int offset = stride * py + px * 3;
             if (offset >= marshalledData.Length)
                 return true;
-            return (marshalledData [offset] == 0 && marshalledData [offset + 1] == 0 && marshalledData [offset + 2] == 0);
+            return (marshalledData[offset] == 0 && marshalledData[offset + 1] == 0 && marshalledData[offset + 2] == 0);
         }
 
         /// <summary>
         /// Returns true if the given pixel is empty (i.e. alpha is zero)
         /// </summary>
-        public static unsafe bool EmptyAlphaPixel (byte[] marshalledData, int stride, int px, int py, byte alphaEmptyPixelTolerance) {
+        public static unsafe bool EmptyAlphaPixel(byte[] marshalledData, int stride, int px, int py, byte alphaEmptyPixelTolerance) {
             int offset = stride * py + px * 4;
             if (offset >= marshalledData.Length)
                 return true;
-            return marshalledData [offset + 3] <= alphaEmptyPixelTolerance;
+            return marshalledData[offset + 3] <= alphaEmptyPixelTolerance;
         }
 
         /// <summary>
         /// Blits a block of a bitmap data from source to destination, using the luminance of the source to determine the 
         /// alpha of the target. Source must be 24-bit, target must be 32-bit.
         /// </summary>
-        public static void BlitMask (BitmapData source, BitmapData target, int srcPx, int srcPy, int srcW, int srcH, int px, int py) {
+        public static void BlitMask(BitmapData source, BitmapData target, int srcPx, int srcPy, int srcW, int srcH, int px, int py, bool alphaByLum) {
 
             int sourceBpp = 3;
             int targetBpp = 4;
@@ -80,11 +80,11 @@ namespace QuickFont {
             int targetStartY, targetEndY;
             int copyW, copyH;
 
-            targetStartX = Math.Max (px, 0);
-            targetEndX = Math.Min (px + srcW, target.Width);
+            targetStartX = Math.Max(px, 0);
+            targetEndX = Math.Min(px + srcW, target.Width);
 
-            targetStartY = Math.Max (py, 0);
-            targetEndY = Math.Min (py + srcH, target.Height);
+            targetStartY = Math.Max(py, 0);
+            targetEndY = Math.Min(py + srcH, target.Height);
 
             copyW = targetEndX - targetStartX;
             copyH = targetEndY - targetStartY;
@@ -100,7 +100,6 @@ namespace QuickFont {
             int sourceStartX = srcPx + targetStartX - px;
             int sourceStartY = srcPy + targetStartY - py;
 
-
             unsafe {
                 byte* sourcePtr = (byte*)(source.Scan0);
                 byte* targetPtr = (byte*)(target.Scan0);
@@ -112,16 +111,24 @@ namespace QuickFont {
 
                     byte* targetOffset = targetY + targetStartX * targetBpp;
                     byte* sourceOffset = sourceY + sourceStartX * sourceBpp;
+
                     for (int x = 0; x < copyW; x++, targetOffset += targetBpp, sourceOffset += sourceBpp) {
+
                         int lume = *(sourceOffset) + *(sourceOffset + 1) + *(sourceOffset + 2);
-
                         lume /= 3;
-
-                        if (lume > 255)
+                        if (lume > 255) {
                             lume = 255;
+                        }
 
-                        *(targetOffset + 3) = (byte)lume;
-
+                        // Determine alpha by luminosity or copy the source colours as needed.
+                        if (alphaByLum) {
+                            *(targetOffset + 3) = (byte)lume;
+                        } else {
+                            *(targetOffset) = (byte)*(sourceOffset);
+                            *(targetOffset + 1) = (byte)*(sourceOffset + 1);
+                            *(targetOffset + 2) = (byte)*(sourceOffset + 2);
+                            *(targetOffset + 3) = (byte)(lume > 0 ? 255 : 0);
+                        }
                     }
 
                 }
@@ -131,14 +138,14 @@ namespace QuickFont {
         /// <summary>
         /// Blits from source to target. Both source and target must be 32-bit
         /// </summary>
-        public static void Blit (BitmapData source, BitmapData target, Rectangle sourceRect, int px, int py) {
-            Blit (source, target, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, px, py);
+        public static void Blit(BitmapData source, BitmapData target, Rectangle sourceRect, int px, int py) {
+            Blit(source, target, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, px, py);
         }
 
         /// <summary>
         /// Blits from source to target. Both source and target must be 32-bit
         /// </summary>
-        public static void Blit (BitmapData source, BitmapData target, int srcPx, int srcPy, int srcW, int srcH, int destX, int destY) {
+        public static void Blit(BitmapData source, BitmapData target, int srcPx, int srcPy, int srcW, int srcH, int destX, int destY) {
 
             int bpp = 4;
 
@@ -146,11 +153,11 @@ namespace QuickFont {
             int targetStartY, targetEndY;
             int copyW, copyH;
 
-            targetStartX = Math.Max (destX, 0);
-            targetEndX = Math.Min (destX + srcW, target.Width);
+            targetStartX = Math.Max(destX, 0);
+            targetEndX = Math.Min(destX + srcW, target.Width);
 
-            targetStartY = Math.Max (destY, 0);
-            targetEndY = Math.Min (destY + srcH, target.Height);
+            targetStartY = Math.Max(destY, 0);
+            targetEndY = Math.Min(destY + srcH, target.Height);
 
             copyW = targetEndX - targetStartX;
             copyH = targetEndY - targetStartY;
@@ -185,39 +192,39 @@ namespace QuickFont {
             }
         }
 
-        public unsafe void PutPixel32 (int px, int py, byte r, byte g, byte b, byte a) {
+        public unsafe void PutPixel32(int px, int py, byte r, byte g, byte b, byte a) {
             byte* addr = (byte*)(bitmapData.Scan0) + bitmapData.Stride * py + px * 4;
-       
+
             *addr = b;
             *(addr + 1) = g;
             *(addr + 2) = r;
             *(addr + 3) = a;
         }
 
-        public unsafe void GetPixel32 (int px, int py, ref byte r, ref byte g, ref byte b, ref byte a) {
+        public unsafe void GetPixel32(int px, int py, ref byte r, ref byte g, ref byte b, ref byte a) {
             byte* addr = (byte*)(bitmapData.Scan0) + bitmapData.Stride * py + px * 4;
-        
+
             b = *addr;
             g = *(addr + 1);
             r = *(addr + 2);
-            a = *(addr + 3); 
+            a = *(addr + 3);
         }
 
-        public unsafe void PutAlpha32 (int px, int py, byte a) {
+        public unsafe void PutAlpha32(int px, int py, byte a) {
             *((byte*)(bitmapData.Scan0) + bitmapData.Stride * py + px * 4 + 3) = a;
         }
 
-        public unsafe void GetAlpha32 (int px, int py, ref byte a) {
+        public unsafe void GetAlpha32(int px, int py, ref byte a) {
             a = *((byte*)(bitmapData.Scan0) + bitmapData.Stride * py + px * 4 + 3);
         }
 
-        public void DownScale32 (int newWidth, int newHeight) {
-            
+        public void DownScale32(int newWidth, int newHeight) {
 
-            QBitmap newBitmap = new QBitmap (new Bitmap (newWidth, newHeight, bitmap.PixelFormat));
+
+            QBitmap newBitmap = new QBitmap(new Bitmap(newWidth, newHeight, bitmap.PixelFormat));
 
             if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
-                throw new Exception ("DownsScale32 only works on 32 bit images");
+                throw new Exception("DownsScale32 only works on 32 bit images");
 
             float xscale = (float)bitmapData.Width / newWidth;
             float yscale = (float)bitmapData.Height / newHeight;
@@ -271,15 +278,15 @@ namespace QuickFont {
 
                     for (int j = top; j <= bottom; j++) {
                         for (int i = left; i <= right; i++) {
-                            targetStartX = Math.Max (leftF, i);
-                            targetEndX = Math.Min (rightF, i + 1);
+                            targetStartX = Math.Max(leftF, i);
+                            targetEndX = Math.Min(rightF, i + 1);
 
-                            targetStartY = Math.Max (topF, j);
-                            targetEndY = Math.Min (bottomF, j + 1);
+                            targetStartY = Math.Max(topF, j);
+                            targetEndY = Math.Min(bottomF, j + 1);
 
                             weight = (targetEndX - targetStartX) * (targetEndY - targetStartY);
 
-                            GetPixel32 (i, j, ref r, ref g, ref b, ref a);
+                            GetPixel32(i, j, ref r, ref g, ref b, ref a);
 
                             summedA += weight * a;
 
@@ -316,14 +323,14 @@ namespace QuickFont {
                     if (summedA >= 256)
                         summedA = 255;
 
-                    newBitmap.PutPixel32 (n, m, (byte)summedR, (byte)summedG, (byte)summedB, (byte)summedA);
+                    newBitmap.PutPixel32(n, m, (byte)summedR, (byte)summedG, (byte)summedB, (byte)summedA);
                 }
 
             }
-            
 
-            this.Free ();
-            
+
+            this.Free();
+
             this.bitmap = newBitmap.bitmap;
             this.bitmapData = newBitmap.bitmapData;
         }
@@ -334,7 +341,7 @@ namespace QuickFont {
         /// <param name="r"></param>
         /// <param name="g"></param>
         /// <param name="b"></param>
-        public void Colour32 (byte r, byte g, byte b) {
+        public void Colour32(byte r, byte g, byte b) {
             unsafe {
                 byte* addr;
                 for (int i = 0; i < bitmapData.Width; i++) {
@@ -433,8 +440,8 @@ namespace QuickFont {
             tmp.Free();
 
         }*/
-        public void BlurAlpha (int radius, int passes) {
-            QBitmap tmp = new QBitmap (new Bitmap (this.bitmap.Width, this.bitmap.Height, bitmap.PixelFormat));
+        public void BlurAlpha(int radius, int passes) {
+            QBitmap tmp = new QBitmap(new Bitmap(this.bitmap.Width, this.bitmap.Height, bitmap.PixelFormat));
 
             byte a = 0;
             int summedA;
@@ -452,14 +459,14 @@ namespace QuickFont {
                         for (kx = -radius; kx <= radius; kx++) {
                             xpos = x + kx;
                             if (xpos >= 0 && xpos < width) {
-                                GetAlpha32 (xpos, y, ref a);
+                                GetAlpha32(xpos, y, ref a);
                                 summedA += a;
                                 weight++;
                             }
                         }
 
                         summedA /= weight;
-                        tmp.PutAlpha32 (x, y, (byte)summedA);
+                        tmp.PutAlpha32(x, y, (byte)summedA);
                     }
                 }
 
@@ -473,7 +480,7 @@ namespace QuickFont {
                         for (ky = -radius; ky <= radius; ky++) {
                             ypos = y + ky;
                             if (ypos >= 0 && ypos < height) {
-                                tmp.GetAlpha32 (x, ypos, ref a);
+                                tmp.GetAlpha32(x, ypos, ref a);
                                 summedA += a;
                                 weight++;
                             }
@@ -481,20 +488,20 @@ namespace QuickFont {
 
                         summedA /= weight;
 
-                        PutAlpha32 (x, y, (byte)summedA);
+                        PutAlpha32(x, y, (byte)summedA);
 
                     }
                 }
 
             }
 
-            tmp.Free ();
+            tmp.Free();
 
         }
 
-        public void Free () {
-            bitmap.UnlockBits (bitmapData);
-            bitmap.Dispose ();
+        public void Free() {
+            bitmap.UnlockBits(bitmapData);
+            bitmap.Dispose();
         }
     }
 }

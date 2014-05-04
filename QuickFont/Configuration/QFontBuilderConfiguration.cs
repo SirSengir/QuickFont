@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace QuickFont {
@@ -58,10 +59,15 @@ namespace QuickFont {
         /// Set of characters to support
         /// </summary>
         public string CharSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.:,;'\"(!?)+-*/=_{}[]@~#\\<>|^%$£&";
+        public Dictionary<char, FixedGlyph> FixedGlyphs {
+            get { return _fixedGlyphs; }
+        }
         /// <summary>
         /// Which render hint to use when rendering the ttf character set to create the QFont texture
         /// </summary>
         public TextGenerationRenderHint TextGenerationRenderHint = TextGenerationRenderHint.SizeDependent;
+
+        Dictionary<char, FixedGlyph> _fixedGlyphs = new Dictionary<char, FixedGlyph>();
 
         public QFontBuilderConfiguration () {
         }
