@@ -1,7 +1,7 @@
 QuickFont
 =========
 
-Own copy of QuickFont for OpenTK for bugfixes.
+Condensed version of QuickFont for OpenTK. Only loading and building of fonts remain.
 
 Original Homepage: http://www.opentk.com/project/QuickFont
 
