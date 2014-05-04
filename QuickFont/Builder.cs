@@ -360,7 +360,7 @@ namespace QuickFont {
                                 QBitmap.BlitMask(sourceBitmaps[sourceGlyphs[i].Page], currentPage.bitmapData, rect.X, rect.Y, rect.Width, rect.Height, xPos + destMargin, yPos + destMargin, !sourceGlyphs[i].SuppressColouring);
                             }
 
-                            destGlyphs[i] = new QFontGlyph(pages.Count - 1, new Rectangle(xPos + destMargin, yPos + destMargin, rect.Width, rect.Height), sourceGlyphs[i].YOffset, sourceGlyphs[i].Character);
+                            destGlyphs[i] = new QFontGlyph(pages.Count - 1, new Rectangle(xPos + destMargin, yPos + destMargin, rect.Width, rect.Height), sourceGlyphs[i].YOffset, sourceGlyphs[i].Character) { SuppressColouring = sourceGlyphs[i].SuppressColouring };
                         } else {
                             finalPageRequiredWidth = Math.Max(finalPageRequiredWidth, xPos + rect.Width + 2 * destMargin);
                             finalPageRequiredHeight = Math.Max(finalPageRequiredHeight, yPos + rect.Height + 2 * destMargin);
@@ -560,7 +560,7 @@ namespace QuickFont {
             destGlyphs = new QFontGlyph[sourceGlyphs.Length];
             for (int i = 0; i < sourceGlyphs.Length; i++) {
                 QFontGlyph sg = sourceGlyphs[i];
-                destGlyphs[i] = new QFontGlyph(i, new Rectangle(0, 0, sg.Rect.Width, sg.Rect.Height), sg.YOffset, sg.Character);
+                destGlyphs[i] = new QFontGlyph(i, new Rectangle(0, 0, sg.Rect.Width, sg.Rect.Height), sg.YOffset, sg.Character) { SuppressColouring = sg.SuppressColouring };
                 destBitmaps[i] = new QBitmap(new Bitmap(sg.Rect.Width, sg.Rect.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb));
                 QBitmap.Blit(sourceBitmaps[sg.Page].bitmapData, destBitmaps[i].bitmapData, sg.Rect, 0, 0);
             }
