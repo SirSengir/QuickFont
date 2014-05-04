@@ -131,7 +131,10 @@ namespace QuickFont {
                 glyph.Rect.Y + " " +
                 glyph.Rect.Width + " " +
                 glyph.Rect.Height + " " +
-                glyph.YOffset);
+                glyph.YOffset + " " +
+                glyph.SuppressColouring.ToString ()
+
+                );
             }
             return data;
         }
@@ -146,7 +149,9 @@ namespace QuickFont {
 
                 for (int i = 0; i < glyphCount; i++) {
                     var vals = input [2 + i].Split (' ');
-                    var glyph = new QFontGlyph (int.Parse (vals [1]), new Rectangle (int.Parse (vals [2]), int.Parse (vals [3]), int.Parse (vals [4]), int.Parse (vals [5])), int.Parse (vals [6]), vals [0] [0]);
+                    var glyph = new QFontGlyph (int.Parse (vals [1]), new Rectangle (int.Parse (vals [2]), int.Parse (vals [3]), int.Parse (vals [4]), int.Parse (vals [5])), int.Parse (vals [6]), vals [0] [0]) {
+                        SuppressColouring = vals.Length > 7 ? bool.Parse (vals [7]) : false
+                    };
 
                     CharSetMapping.Add (vals [0] [0], glyph);
                     charSetList.Add (vals [0] [0]);
