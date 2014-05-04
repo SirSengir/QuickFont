@@ -38,6 +38,15 @@ namespace QuickFont {
             private set;
         }
 
+        /// <summary>
+        /// Indicates whether colouring should be suppressed for this glyph.
+        /// </summary>
+        /// <value><c>true</c> if suppress colouring; otherwise, <c>false</c>.</value>
+        public bool SuppressColouring {
+            get;
+            set;
+        }
+
         public QFontGlyph (int page, Rectangle rect, int yOffset, char character) {
             Page = page;
             Rect = rect;
